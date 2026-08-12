@@ -1,0 +1,837 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ゲーム画面風UI素材キット｜深海サルベージ</title>
+<style>
+/* ============================================================
+   設計トークン。ここに書いた値以外は画面で使わない。
+   「統一感」は感覚ではなく、この表を守るかどうかで決まる。
+   ============================================================ */
+:root{
+  /* 色（7色だけ。増やさない） */
+  --abyss:#04121a;      /* 最暗部・画面の地 */
+  --deep:#082430;       /* パネルの地 */
+  --line:#4e9a94;       /* ヘアラインの基色。透明度で3段に使い分ける */
+  --text:#cfe3e0;       /* 読ませる字 */
+  --dim:#6b8f8c;        /* 補助の字 */
+  --amber:#e6a03c;      /* 計器・現在値・強調 */
+  --alert:#d9603f;      /* 危険のみ。他に使わない */
+
+  /* 線（3段だけ） */
+  --hair:rgba(78,154,148,.28);
+  --hair2:rgba(78,154,148,.52);
+  --hair3:rgba(78,154,148,.85);
+
+  /* 間隔は8の倍数のみ */
+  --u:8px;
+
+  /* 角丸は使わない。これが型を決める一番大きな一手 */
+  --r:0px;
+
+  --mono:ui-monospace,"SFMono-Regular",Consolas,"DejaVu Sans Mono",monospace;
+  --ja:"BIZ UDPGothic","Yu Gothic UI","Hiragino Sans","Meiryo",sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  background:var(--abyss);color:var(--text);
+  font-family:var(--ja);font-size:15px;line-height:1.85;
+  -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:1180px;margin:0 auto;padding:0 24px 96px}
+
+/* ---------- 見出し ---------- */
+header{padding:72px 0 40px;border-bottom:1px solid var(--hair)}
+.kicker{
+  font-family:var(--mono);font-size:11px;letter-spacing:.22em;
+  color:var(--amber);text-transform:uppercase;margin-bottom:18px;
+}
+h1{font-size:30px;font-weight:600;letter-spacing:.04em;line-height:1.4}
+h1 span{display:block;font-size:15px;font-weight:400;color:var(--dim);
+  letter-spacing:.02em;margin-top:12px}
+.lede{margin-top:26px;max-width:62ch;color:var(--dim);font-size:14px}
+.lede b{color:var(--text);font-weight:600}
+
+h2{
+  font-size:13px;font-weight:600;letter-spacing:.18em;color:var(--amber);
+  font-family:var(--mono);text-transform:uppercase;
+  padding-top:72px;margin-bottom:6px;
+}
+h2 + .sub{color:var(--dim);font-size:13px;margin-bottom:24px;max-width:64ch}
+
+/* ---------- 16:9 の画面を実寸のまま横に送る枠 ----------
+   ★これは映像用の16:9素材であって、Webページではない。★
+     携帯の幅に合わせて潰すと、定規・ソナー・操作行が重なって読めなくなる
+     （実際に360pxで崩れているのを見た）。比率を保ったまま横スクロールさせる。 */
+.fr{position:relative}
+@media(max-width:860px){
+  .fr{overflow-x:auto;overflow-y:hidden;-webkit-overflow-scrolling:touch;
+      border:1px solid var(--hair);padding:6px}
+  .fr > .screen,.fr > .bad-box{min-width:760px}
+  .fr::-webkit-scrollbar{height:5px}
+  .fr::-webkit-scrollbar-thumb{background:var(--hair2)}
+  .fr::before{content:"← 横にスクロールできます（16:9の実寸で表示しています）";
+    display:block;font-family:var(--mono);font-size:10px;color:var(--dim);
+    letter-spacing:.08em;padding:0 0 8px}
+}
+
+/* ---------- 画面の枠（16:9） ---------- */
+.screen{
+  position:relative;width:100%;aspect-ratio:16/9;
+  background:
+    radial-gradient(120% 90% at 50% 8%, #0d3242 0%, #071d27 46%, var(--abyss) 100%);
+  border:1px solid var(--hair2);border-radius:var(--r);
+  overflow:hidden;font-family:var(--mono);
+  color:var(--text);
+}
+/* 走査線と粒子。画像を1枚も使わずに「機材ごしの映像」を作る */
+.screen::after{
+  content:"";position:absolute;inset:0;pointer-events:none;
+  background:repeating-linear-gradient(180deg,
+    rgba(0,0,0,0) 0 2px, rgba(0,0,0,.16) 2px 3px);
+  mix-blend-mode:multiply;
+}
+.vig{position:absolute;inset:0;pointer-events:none;
+  background:radial-gradient(78% 78% at 50% 50%, rgba(0,0,0,0) 40%, rgba(0,0,0,.62) 100%)}
+.motes{position:absolute;inset:0;pointer-events:none;opacity:.5;
+  background:
+   radial-gradient(1.5px 1.5px at 14% 22%, #9fd6cf 50%, transparent 51%),
+   radial-gradient(1px 1px at 31% 68%, #9fd6cf 50%, transparent 51%),
+   radial-gradient(1.5px 1.5px at 57% 34%, #9fd6cf 50%, transparent 51%),
+   radial-gradient(1px 1px at 73% 79%, #9fd6cf 50%, transparent 51%),
+   radial-gradient(1.5px 1.5px at 88% 46%, #9fd6cf 50%, transparent 51%),
+   radial-gradient(1px 1px at 44% 88%, #9fd6cf 50%, transparent 51%),
+   radial-gradient(1px 1px at 66% 12%, #9fd6cf 50%, transparent 51%);
+}
+
+/* ---------- HUDの部品 ---------- */
+.hud{position:absolute;inset:0;padding:2.6% 3%}
+.tl{position:absolute;left:3%;top:5%}
+.tr{position:absolute;right:3%;top:5%;text-align:right}
+.bl{position:absolute;left:3%;bottom:6%}
+.br{position:absolute;right:3%;bottom:6%}
+
+.lbl{font-size:9px;letter-spacing:.24em;color:var(--dim)}
+.big{font-size:38px;font-weight:500;letter-spacing:.02em;color:var(--text);
+  line-height:1;font-variant-numeric:tabular-nums}
+.big i{font-style:normal;font-size:14px;color:var(--dim);margin-left:6px}
+.mid{font-size:16px;letter-spacing:.06em;font-variant-numeric:tabular-nums}
+.am{color:var(--amber)}
+.al{color:var(--alert)}
+
+/* 縦ゲージ。目盛りは repeating-linear-gradient で刻む */
+.gauges{position:absolute;left:3%;top:26%;display:flex;gap:14px}
+.g{width:12px;height:170px;border:1px solid var(--hair2);position:relative;
+   background:repeating-linear-gradient(180deg,
+     var(--hair) 0 1px, transparent 1px 10px)}
+.g span{position:absolute;left:0;right:0;bottom:0;background:var(--line);opacity:.62}
+.g.am span{background:var(--amber);opacity:.9}
+.g.al span{background:var(--alert);opacity:.95}
+.gcap{position:absolute;left:3%;top:calc(26% + 178px);display:flex;gap:14px}
+.gcap b{width:12px;font-size:8px;font-weight:400;color:var(--dim);
+  text-align:center;letter-spacing:0}
+
+/* 中央のレティクル */
+.reticle{position:absolute;left:50%;top:52%;transform:translate(-50%,-50%)}
+
+/* 下部のコマンド行 */
+.cmd{position:absolute;left:3%;right:3%;bottom:6%;
+  border-top:1px solid var(--hair);padding-top:9px;
+  display:flex;gap:26px;font-size:11px;letter-spacing:.12em;color:var(--dim)}
+.cmd b{font-weight:400;color:var(--text)}
+.cmd b::before{content:attr(data-k);color:var(--amber);margin-right:6px}
+
+/* 深度スケール（右端の定規）
+   ★ソナーと縦に重なるので、横の占有域を分ける。★
+     定規は右端3%〜7%、ソナーは右13%〜34%。重ねると読めなくなる（一度やった） */
+.ruler{position:absolute;right:3%;top:20%;height:36%;width:52px;
+  border-right:1px solid var(--hair2)}
+.ruler i{position:absolute;right:0;height:1px;background:var(--hair2);font-style:normal}
+.ruler i.maj{width:14px;background:var(--hair3)}
+.ruler i.min{width:7px}
+.ruler i em{position:absolute;right:18px;top:-9px;font-style:normal;
+  font-size:9px;color:var(--dim);letter-spacing:.1em}
+.ruler .now{position:absolute;right:-1px;width:26px;height:1px;background:var(--amber)}
+.ruler .now em{position:absolute;right:30px;top:-9px;font-style:normal;
+  font-size:11px;color:var(--amber);letter-spacing:.06em}
+
+/* ---------- ソナー ---------- */
+.sonarbox{position:absolute;right:13%;bottom:14%;width:21%;aspect-ratio:1}
+
+/* ---------- 一覧・表 ---------- */
+.tbl{width:100%;border-collapse:collapse;font-size:11px;letter-spacing:.06em}
+.tbl th{
+  text-align:left;font-weight:400;color:var(--dim);font-size:9px;
+  letter-spacing:.2em;padding:0 0 7px;border-bottom:1px solid var(--hair2)}
+.tbl td{padding:7px 0;border-bottom:1px solid var(--hair);
+  font-variant-numeric:tabular-nums}
+.tbl tr:last-child td{border-bottom:0}
+.tbl td.n{text-align:right}
+
+/* ---------- 装備の枡 ---------- */
+.slots{display:grid;grid-template-columns:repeat(6,1fr);gap:1px;
+  background:var(--hair);border:1px solid var(--hair2)}
+.slot{aspect-ratio:1;background:var(--deep);display:grid;place-items:center;
+  position:relative}
+.slot.on{background:#0d3442;box-shadow:inset 0 0 0 1px var(--amber)}
+.slot.empty{background:rgba(8,36,48,.45)}
+.slot u{position:absolute;right:3px;bottom:1px;font-size:8px;color:var(--dim);
+  text-decoration:none;font-variant-numeric:tabular-nums}
+
+/* 横バー（能力値） */
+.bar{height:6px;border:1px solid var(--hair2);position:relative;margin-top:4px}
+.bar span{position:absolute;left:0;top:0;bottom:0;background:var(--line);opacity:.66}
+.bar.am span{background:var(--amber);opacity:.9}
+
+/* ---------- 通信ログ ---------- */
+.log{font-size:12px;line-height:2.0;letter-spacing:.04em}
+.log div{display:flex;gap:14px}
+.log time{color:var(--dim);font-style:normal;flex:none}
+.log s{text-decoration:none;flex:none;width:52px;letter-spacing:.14em;font-size:10px}
+
+/* ---------- アイコン ---------- */
+/* ★列数は必ず点数(24)を割り切る数にする。★
+   auto-fill にすると11列になり、最終行に大きな空きブロックが残って壊れて見える */
+.icons{display:grid;grid-template-columns:repeat(12,1fr);
+  gap:1px;background:var(--hair);border:1px solid var(--hair2)}
+.ico{background:var(--deep);padding:20px 8px 12px;text-align:center}
+.ico svg{display:block;margin:0 auto 10px}
+.ico b{font-size:10px;font-weight:400;color:var(--dim);letter-spacing:.04em;
+  font-family:var(--ja)}
+
+/* ---------- トークン表 ---------- */
+.tok{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;   /* 6項目 = 3列×2行 */
+  background:var(--hair);border:1px solid var(--hair2)}
+.tokcell{background:var(--deep);padding:18px}
+.tokcell .k{font-family:var(--mono);font-size:10px;letter-spacing:.16em;
+  color:var(--amber);margin-bottom:10px}
+.tokcell .v{font-family:var(--mono);font-size:12px;color:var(--text)}
+.tokcell .d{font-size:12px;color:var(--dim);margin-top:8px;line-height:1.7}
+.sw{display:flex;gap:0;margin-bottom:10px;border:1px solid var(--hair2)}
+.sw i{flex:1;height:34px}
+
+/* ---------- 対比 ---------- */
+.cmp{display:grid;grid-template-columns:1fr 1fr;gap:24px}
+.cmp > div > .cap{font-size:11px;letter-spacing:.14em;font-family:var(--mono);
+  margin-bottom:10px}
+.cap.bad{color:var(--alert)}
+.cap.good{color:var(--amber)}
+
+/* 崩れた例。わざと規則を破る（角丸・書体・線幅・彩度・影） */
+.bad-box{
+  aspect-ratio:16/9;background:#181a2e;border-radius:14px;overflow:hidden;
+  position:relative;padding:18px;font-family:Arial,Helvetica,sans-serif;
+  border:1px solid #3a3f6b;
+}
+.bad-box .card{position:absolute;background:#252846;border-radius:12px;
+  box-shadow:0 6px 18px rgba(0,0,0,.5);padding:10px 14px;color:#e6e6f2}
+.bad-box .b1{left:4%;top:7%;border-radius:4px;font-family:Georgia,serif}
+.bad-box .b2{right:4%;top:7%;border-radius:18px;
+  background:linear-gradient(135deg,#7b5cff,#4aa3ff);font-size:12px}
+.bad-box .b3{left:4%;bottom:9%;border-radius:12px;font-size:11px;
+  font-family:"Courier New",monospace}
+.bad-box .b4{right:4%;bottom:9%;border-radius:2px;background:#2f8f6a;font-size:13px}
+.bad-box .b5{left:38%;top:38%;border-radius:24px;padding:14px 22px;
+  background:#ff5d8f;font-weight:bold}
+
+/* ---------- 別トーン ---------- */
+.retone{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.retone .screen{aspect-ratio:16/9}
+.t-amber{--line:#c08a3a;--text:#f0dfc4;--dim:#9a8261;--amber:#ffc46b;
+  background:radial-gradient(120% 90% at 50% 8%, #3a2408 0%, #241505 46%, #120a02 100%)}
+.t-mono{--line:#8c8c8c;--text:#eaeaea;--dim:#8f8f8f;--amber:#ffffff;
+  background:radial-gradient(120% 90% at 50% 8%, #2a2a2a 0%, #161616 46%, #0a0a0a 100%)}
+.retone .cap{font-family:var(--mono);font-size:10px;letter-spacing:.14em;
+  color:var(--dim);margin-top:10px}
+
+/* ---------- 注記 ---------- */
+.note{border-left:2px solid var(--amber);padding:4px 0 4px 20px;
+  color:var(--dim);font-size:13px;max-width:66ch;margin-top:28px}
+.note b{color:var(--text);font-weight:600}
+footer{margin-top:96px;padding-top:32px;border-top:1px solid var(--hair);
+  color:var(--dim);font-size:12px;line-height:2}
+
+/* 折り返しても余りが出ないよう、24と6を割り切る数だけを使う */
+@media(max-width:1000px){ .icons{grid-template-columns:repeat(8,1fr)} }
+@media(max-width:860px){
+  .cmp,.retone{grid-template-columns:1fr}
+  .tok{grid-template-columns:repeat(2,1fr)}
+  .wrap{padding:0 16px 64px}
+  h1{font-size:23px}
+  .big{font-size:26px}
+  .gauges{display:none}.gcap{display:none}
+}
+@media(max-width:560px){
+  .icons{grid-template-columns:repeat(4,1fr)}
+  .tok{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<!-- アイコンは1箇所に定義して使い回す。線幅・箱の大きさ・端の形を全部そろえる -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+<g id="i-o2"><rect x="8" y="3" width="8" height="18" /><path d="M10 3V1h4v2M9 8h6"/></g>
+<g id="i-hull"><path d="M2 12c4-6 16-6 20 0-4 6-16 6-20 0z"/><path d="M12 6v12"/></g>
+<g id="i-batt"><rect x="2" y="7" width="17" height="10"/><path d="M19 10h3v4h-3M6 10v4M10 10v4"/></g>
+<g id="i-lamp"><path d="M12 3a6 6 0 0 1 6 6c0 3-2 4-2 6H8c0-2-2-3-2-6a6 6 0 0 1 6-6z"/><path d="M9 19h6M10 22h4"/></g>
+<g id="i-anchor"><circle cx="12" cy="4" r="2"/><path d="M12 6v15M6 12H3c0 5 4 9 9 9s9-4 9-9h-3M7 9h10"/></g>
+<g id="i-prop"><circle cx="12" cy="12" r="2.4"/><path d="M12 10c0-4-2-7-5-7-1 3 1 6 5 7zM14 12c4 0 7-2 7-5-3-1-6 1-7 5zM12 14c0 4 2 7 5 7 1-3-1-6-5-7zM10 12c-4 0-7 2-7 5 3 1 6-1 7-5z"/></g>
+<g id="i-sonar"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4.5"/><path d="M12 12l6-6"/></g>
+<g id="i-radio"><path d="M12 14v8M5 5a10 10 0 0 0 0 14M19 5a10 10 0 0 1 0 14M8.5 8.5a5 5 0 0 0 0 7M15.5 8.5a5 5 0 0 1 0 7"/><circle cx="12" cy="12" r="1.6"/></g>
+<g id="i-wrench"><path d="M15 3a5 5 0 0 0-4.5 7.2L3 17.7 6.3 21l7.5-7.5A5 5 0 1 0 15 3z"/><circle cx="15.6" cy="8.4" r="1.4"/></g>
+<g id="i-vial"><path d="M9 2h6M10 2v7l-4 9a2.5 2.5 0 0 0 2.3 3.5h7.4A2.5 2.5 0 0 0 18 18l-4-9V2"/><path d="M7.4 15h9.2"/></g>
+<g id="i-net"><path d="M3 5h18v6c0 6-4.5 8-9 8s-9-2-9-8V5z"/><path d="M8 5v13M13 5v14M18 5v13M3 10h18M3 15h17"/></g>
+<g id="i-weight"><path d="M7 8h10l3 13H4L7 8z"/><path d="M9.5 8V6a2.5 2.5 0 0 1 5 0v2"/></g>
+<g id="i-warn"><path d="M12 3L1.5 21h21L12 3z"/><path d="M12 10v5M12 18v.5"/></g>
+<g id="i-lock"><rect x="4" y="10" width="16" height="11"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></g>
+<g id="i-map"><path d="M2 6l7-3 6 3 7-3v15l-7 3-6-3-7 3V6z"/><path d="M9 3v15M15 6v15"/></g>
+<g id="i-compass"><circle cx="12" cy="12" r="9.5"/><path d="M15.5 8.5l-2 5-5 2 2-5 5-2z"/></g>
+<g id="i-depth"><path d="M5 3v18M5 21h15"/><path d="M5 6h4M5 10h6M5 14h4M5 18h6"/><path d="M17 8l3 3-3 3"/></g>
+<g id="i-valve"><circle cx="12" cy="12" r="4"/><path d="M12 2v6M12 16v6M2 12h6M16 12h6M5 5l4 4M15 15l4 4M19 5l-4 4M9 15l-4 4"/></g>
+<g id="i-cable"><path d="M3 7c5 0 5 10 10 10s5-10 8-10"/><rect x="1" y="4" width="4" height="6"/><rect x="19" y="14" width="4" height="6"/></g>
+<g id="i-cam"><rect x="2" y="6" width="14" height="12"/><path d="M16 10l6-3v10l-6-3"/><circle cx="9" cy="12" r="3"/></g>
+<g id="i-fish"><path d="M2 12c4-5 9-6 13-3 2-2 5-2 7 0-1 2-1 4 0 6-2 2-5 2-7 0-4 3-9 2-13-3z"/><circle cx="8" cy="11" r=".9"/></g>
+<g id="i-wreck"><path d="M2 18h20M4 18l2-8h12l2 8"/><path d="M9 10V4l7 3-7 3"/><path d="M2 21h20"/></g>
+<g id="i-crane"><path d="M4 21V3h13M17 3l4 5M13 3v5M13 8h8"/><path d="M17 8v5M14 13h6v5h-6z"/></g>
+<g id="i-flare"><path d="M12 21V9"/><path d="M12 9l6-2.5V2L12 4.5 6 2v4.5L12 9z"/><path d="M9 21h6"/></g>
+</defs></svg>
+
+<div class="wrap">
+
+<header>
+  <div class="kicker">UI ASSET KIT / SAMPLE</div>
+  <h1>ゲーム画面風UI素材キット
+    <span>深海サルベージを題材にした、画面4点・アイコン24点・設計トークン一式</span>
+  </h1>
+  <p class="lede">
+    ご依頼文にあった「<b>既存素材をそのままバラバラにつなげると統一感のない画面になってしまう</b>」
+    という点に、実物でお答えするために作りました。<br><br>
+    この見本は<b>生成AIを一切使わず、すべてコードで描いています</b>（画像ファイルを1枚も読み込んでいません）。
+    アイコンも背景も計器もSVGとCSSです。ベクターなので、<b>4Kでも縦画面でも、書き出し直せば劣化しません</b>。
+    AI生成素材や有料UI素材と混ぜる工程は、この上に重ねる形でご用意できます。
+  </p>
+</header>
+
+<!-- ============ 画面1 ============ -->
+<h2>01 — 探査中のメイン画面</h2>
+<p class="sub">映像に映ったときに「何のゲームか」が0.5秒で伝わることを優先しています。読ませる数字は1つだけ（深度）にして、残りは形と位置で伝えます。<b style="color:var(--text)">中央を意図的に空けてあるのは、実写や別レイヤーの映像をそこに合成する前提だからです。</b>HUDだけを透過PNG／連番で書き出す形にも対応できます。</p>
+<div class="fr">
+<div class="screen">
+  <div class="motes"></div>
+  <div class="hud">
+    <div class="tl">
+      <div class="lbl">DEPTH</div>
+      <div class="big">1<span style="letter-spacing:.02em">,</span>842<i>m</i></div>
+      <div class="mid" style="margin-top:10px;color:var(--dim)">SV-04 “KUROSHIO”</div>
+    </div>
+    <div class="tr">
+      <div class="lbl">POSITION</div>
+      <div class="mid">34°21'07"N</div>
+      <div class="mid">139°48'52"E</div>
+      <div class="mid am" style="margin-top:10px">T- 02:14:38</div>
+    </div>
+
+    <div class="gauges">
+      <div class="g"><span style="height:78%"></span></div>
+      <div class="g am"><span style="height:41%"></span></div>
+      <div class="g"><span style="height:63%"></span></div>
+      <div class="g al"><span style="height:14%"></span></div>
+    </div>
+    <div class="gcap"><b>O2</b><b>PWR</b><b>HUL</b><b>BAL</b></div>
+
+    <div class="ruler">
+      <i class="min" style="top:0%"></i>
+      <i class="maj" style="top:12%"><em>1600</em></i>
+      <i class="min" style="top:24%"></i>
+      <i class="maj" style="top:36%"><em>1700</em></i>
+      <i class="min" style="top:48%"></i>
+      <i class="maj" style="top:60%"><em>1800</em></i>
+      <i class="min" style="top:72%"></i>
+      <i class="maj" style="top:84%"><em>1900</em></i>
+      <i class="min" style="top:96%"></i>
+      <div class="now" style="top:66%"><em>1842</em></div>
+    </div>
+
+    <svg class="reticle" width="132" height="132" viewBox="0 0 132 132" fill="none"
+         stroke="rgba(78,154,148,.62)" stroke-width="1">
+      <circle cx="66" cy="66" r="46" stroke-dasharray="2 7"/>
+      <circle cx="66" cy="66" r="15"/>
+      <path d="M66 4v22M66 106v22M4 66h22M106 66h22"/>
+      <path d="M46 20h-26v26M86 20h26v26M46 112h-26V86M86 112h26V86" stroke="rgba(230,160,60,.8)"/>
+    </svg>
+
+    <div class="sonarbox">
+      <svg viewBox="0 0 200 200" fill="none">
+        <circle cx="100" cy="100" r="96" stroke="var(--hair2)"/>
+        <circle cx="100" cy="100" r="70" stroke="var(--hair)"/>
+        <circle cx="100" cy="100" r="44" stroke="var(--hair)"/>
+        <circle cx="100" cy="100" r="18" stroke="var(--hair)"/>
+        <path d="M100 4v192M4 100h192" stroke="var(--hair)"/>
+        <path d="M100 100 L168 44 A86 86 0 0 0 100 14 Z" fill="rgba(230,160,60,.14)"/>
+        <path d="M100 100L168 44" stroke="rgba(230,160,60,.85)"/>
+        <circle cx="139" cy="72" r="3.2" fill="var(--amber)"/>
+        <circle cx="72" cy="141" r="2.4" fill="var(--line)"/>
+        <circle cx="58" cy="79" r="2.4" fill="var(--line)"/>
+        <circle cx="128" cy="132" r="2.4" fill="var(--line)"/>
+      </svg>
+    </div>
+
+    <div class="cmd">
+      <b data-k="F1">投光</b><b data-k="F2">採取</b><b data-k="F3">係留</b>
+      <b data-k="F4">通信</b><b data-k="F5">浮上</b>
+      <span style="margin-left:auto" class="al">▲ バラスト系 応答なし</span>
+    </div>
+  </div>
+  <div class="vig"></div>
+</div>
+</div>
+
+<!-- ============ 画面2 ============ -->
+<h2>02 — 海図・ソナー</h2>
+<p class="sub">マップ画面。円と同心円だけで組み、角丸を1つも使っていません。右の一覧はメイン画面と同じ字送り・同じ罫線です。</p>
+<div class="fr">
+<div class="screen">
+  <div class="motes"></div>
+  <div class="hud" style="display:flex;gap:3%;align-items:stretch">
+    <div style="flex:0 0 46%;display:grid;place-items:center;position:relative">
+      <svg viewBox="0 0 320 320" fill="none" style="width:96%">
+        <circle cx="160" cy="160" r="152" stroke="var(--hair2)"/>
+        <circle cx="160" cy="160" r="114" stroke="var(--hair)"/>
+        <circle cx="160" cy="160" r="76" stroke="var(--hair)"/>
+        <circle cx="160" cy="160" r="38" stroke="var(--hair)"/>
+        <g stroke="var(--hair2)">
+          <path d="M160 8v14M160 298v14M8 160h14M298 160h14"/>
+          <path d="M53 53l10 10M267 53l-10 10M53 267l10-10M267 267l-10-10"/>
+        </g>
+        <text x="160" y="26" fill="var(--dim)" font-size="11" text-anchor="middle"
+              font-family="ui-monospace,monospace" letter-spacing="2">000</text>
+        <text x="298" y="164" fill="var(--dim)" font-size="11" text-anchor="middle"
+              font-family="ui-monospace,monospace" letter-spacing="2">090</text>
+        <text x="160" y="306" fill="var(--dim)" font-size="11" text-anchor="middle"
+              font-family="ui-monospace,monospace" letter-spacing="2">180</text>
+        <text x="24" y="164" fill="var(--dim)" font-size="11" text-anchor="middle"
+              font-family="ui-monospace,monospace" letter-spacing="2">270</text>
+        <path d="M160 160 L268 74 A137 137 0 0 0 160 23 Z" fill="rgba(230,160,60,.13)"/>
+        <path d="M160 160L268 74" stroke="rgba(230,160,60,.9)"/>
+        <!-- 接触 -->
+        <g fill="var(--amber)"><circle cx="228" cy="106" r="4"/></g>
+        <g fill="var(--line)">
+          <circle cx="104" cy="216" r="3"/><circle cx="88" cy="128" r="3"/>
+          <circle cx="212" cy="228" r="3"/><circle cx="146" cy="86" r="3"/>
+        </g>
+        <g stroke="rgba(78,154,148,.5)" stroke-dasharray="3 4">
+          <path d="M160 160L104 216M160 160L88 128M160 160L212 228"/>
+        </g>
+        <!-- 沈船の輪郭 -->
+        <path d="M196 96l38-14 8 16-34 20-12-22z" stroke="rgba(230,160,60,.7)"
+              fill="rgba(230,160,60,.08)"/>
+      </svg>
+    </div>
+    <div style="flex:1;padding-top:2%">
+      <div class="lbl" style="margin-bottom:14px">CONTACTS — 04</div>
+      <table class="tbl">
+        <tr><th>ID</th><th>方位</th><th>距離</th><th>種別</th><th class="n">深度</th></tr>
+        <tr><td class="am">A-01</td><td class="am">042</td><td class="am">318m</td>
+            <td class="am">沈船</td><td class="n am">1,861</td></tr>
+        <tr><td>B-02</td><td>214</td><td>402m</td><td>岩礁</td><td class="n">1,904</td></tr>
+        <tr><td>B-03</td><td>301</td><td>377m</td><td>岩礁</td><td class="n">1,788</td></tr>
+        <tr><td>C-04</td><td>128</td><td>441m</td><td>不明</td><td class="n">1,952</td></tr>
+      </table>
+      <div class="lbl" style="margin:26px 0 10px">SEABED PROFILE</div>
+      <svg viewBox="0 0 400 90" style="width:100%" fill="none">
+        <path d="M0 90 L0 58 Q40 44 78 62 T150 48 Q196 30 240 52 T320 40 Q364 32 400 54 L400 90 Z"
+              fill="rgba(78,154,148,.13)" stroke="var(--hair3)"/>
+        <path d="M0 22h400" stroke="var(--hair)" stroke-dasharray="2 6"/>
+        <path d="M240 52v-30" stroke="var(--amber)"/>
+        <circle cx="240" cy="52" r="3.5" fill="var(--amber)"/>
+      </svg>
+    </div>
+    <!-- 画面01と同じ罫線・同じ字送りの操作行。画面をまたいで同じ部品を使うのが「統一感」の実体 -->
+    <div class="cmd">
+      <b data-k="TAB">縮尺</b><b data-k="M">記録</b><b data-k="ENTER">進路設定</b>
+      <span style="margin-left:auto">RANGE 500m　/　GAIN 07</span>
+    </div>
+  </div>
+  <div class="vig"></div>
+</div>
+</div>
+
+<!-- ============ 画面3 ============ -->
+<h2>03 — 装備・積載</h2>
+<p class="sub">枡目は1pxの隙間で並べ、背景を透かして罫線に見せています。選択中だけを琥珀の内枠で示し、色数を増やしません。</p>
+<div class="fr">
+<div class="screen">
+  <div class="motes"></div>
+  <div class="hud" style="display:flex;gap:4%">
+    <div style="flex:0 0 52%;padding-top:2%">
+      <div class="lbl" style="margin-bottom:14px">PAYLOAD — 18 / 24</div>
+      <div class="slots">
+        <div class="slot on"><svg width="26" height="26" viewBox="0 0 24 24" fill="none"
+          stroke="var(--amber)" stroke-width="1.6"><use href="#i-lamp"/></svg><u>01</u></div>
+        <div class="slot"><svg width="26" height="26" viewBox="0 0 24 24" fill="none"
+          stroke="var(--line)" stroke-width="1.6"><use href="#i-o2"/></svg><u>04</u></div>
+        <div class="slot"><svg width="26" height="26" viewBox="0 0 24 24" fill="none"
+          stroke="var(--line)" stroke-width="1.6"><use href="#i-vial"/></svg><u>12</u></div>
+        <div class="slot"><svg width="26" height="26" viewBox="0 0 24 24" fill="none"
+          stroke="var(--line)" stroke-width="1.6"><use href="#i-net"/></svg><u>02</u></div>
+        <div class="slot"><svg width="26" height="26" viewBox="0 0 24 24" fill="none"
+          stroke="var(--line)" stroke-width="1.6"><use href="#i-wrench"/></svg><u>01</u></div>
+        <div class="slot"><svg width="26" height="26" viewBox="0 0 24 24" fill="none"
+          stroke="var(--line)" stroke-width="1.6"><use href="#i-flare"/></svg><u>06</u></div>
+
+        <div class="slot"><svg width="26" height="26" viewBox="0 0 24 24" fill="none"
+          stroke="var(--line)" stroke-width="1.6"><use href="#i-weight"/></svg><u>08</u></div>
+        <div class="slot"><svg width="26" height="26" viewBox="0 0 24 24" fill="none"
+          stroke="var(--line)" stroke-width="1.6"><use href="#i-cable"/></svg><u>03</u></div>
+        <div class="slot"><svg width="26" height="26" viewBox="0 0 24 24" fill="none"
+          stroke="var(--line)" stroke-width="1.6"><use href="#i-cam"/></svg><u>01</u></div>
+        <div class="slot"><svg width="26" height="26" viewBox="0 0 24 24" fill="none"
+          stroke="var(--line)" stroke-width="1.6"><use href="#i-anchor"/></svg><u>02</u></div>
+        <div class="slot"><svg width="26" height="26" viewBox="0 0 24 24" fill="none"
+          stroke="var(--line)" stroke-width="1.6"><use href="#i-batt"/></svg><u>05</u></div>
+        <div class="slot"><svg width="26" height="26" viewBox="0 0 24 24" fill="none"
+          stroke="var(--line)" stroke-width="1.6"><use href="#i-prop"/></svg><u>01</u></div>
+
+        <div class="slot"><svg width="26" height="26" viewBox="0 0 24 24" fill="none"
+          stroke="var(--line)" stroke-width="1.6"><use href="#i-radio"/></svg><u>01</u></div>
+        <div class="slot"><svg width="26" height="26" viewBox="0 0 24 24" fill="none"
+          stroke="var(--line)" stroke-width="1.6"><use href="#i-valve"/></svg><u>04</u></div>
+        <div class="slot"><svg width="26" height="26" viewBox="0 0 24 24" fill="none"
+          stroke="var(--line)" stroke-width="1.6"><use href="#i-compass"/></svg><u>01</u></div>
+        <div class="slot"><svg width="26" height="26" viewBox="0 0 24 24" fill="none"
+          stroke="var(--line)" stroke-width="1.6"><use href="#i-depth"/></svg><u>01</u></div>
+        <div class="slot"><svg width="26" height="26" viewBox="0 0 24 24" fill="none"
+          stroke="var(--line)" stroke-width="1.6"><use href="#i-map"/></svg><u>02</u></div>
+        <div class="slot"><svg width="26" height="26" viewBox="0 0 24 24" fill="none"
+          stroke="var(--line)" stroke-width="1.6"><use href="#i-crane"/></svg><u>01</u></div>
+
+        <!-- 空き6枡。見出しの「18 / 24」と実物の数を必ず一致させる -->
+        <div class="slot empty"></div><div class="slot empty"></div><div class="slot empty"></div>
+        <div class="slot empty"></div><div class="slot empty"></div><div class="slot empty"></div>
+      </div>
+    </div>
+
+    <div style="flex:1;padding-top:2%">
+      <div class="lbl">SELECTED</div>
+      <div class="mid am" style="margin:8px 0 4px;font-size:19px">投光機 MK-II</div>
+      <div style="font-size:11px;color:var(--dim);letter-spacing:.06em;line-height:1.9">
+        照射角 60° / 消費 4.2kW<br>耐圧 2,400m
+      </div>
+      <div style="margin-top:22px">
+        <div style="display:flex;justify-content:space-between;font-size:9px;
+             letter-spacing:.2em;color:var(--dim)"><span>光量</span><span>82</span></div>
+        <div class="bar am"><span style="width:82%"></span></div>
+      </div>
+      <div style="margin-top:14px">
+        <div style="display:flex;justify-content:space-between;font-size:9px;
+             letter-spacing:.2em;color:var(--dim)"><span>消費電力</span><span>44</span></div>
+        <div class="bar"><span style="width:44%"></span></div>
+      </div>
+      <div style="margin-top:14px">
+        <div style="display:flex;justify-content:space-between;font-size:9px;
+             letter-spacing:.2em;color:var(--dim)"><span>耐久</span><span>67</span></div>
+        <div class="bar"><span style="width:67%"></span></div>
+      </div>
+      <div style="margin-top:26px;border-top:1px solid var(--hair);padding-top:14px">
+        <div style="display:flex;justify-content:space-between;font-size:9px;
+             letter-spacing:.2em;color:var(--dim)"><span>積載重量</span>
+             <span class="am">412 / 600 kg</span></div>
+        <div class="bar am" style="margin-top:6px"><span style="width:69%"></span></div>
+        <div style="display:flex;justify-content:space-between;margin-top:14px;
+             font-size:9px;letter-spacing:.2em;color:var(--dim)">
+             <span>トリム</span><span>船首 -2.4°</span></div>
+        <svg viewBox="0 0 200 26" style="width:100%;margin-top:6px" fill="none">
+          <path d="M0 13h200" stroke="var(--hair)"/>
+          <path d="M100 3v20" stroke="var(--hair2)"/>
+          <path d="M20 13h160" stroke="var(--hair2)" stroke-dasharray="1 9"/>
+          <path d="M82 6v14" stroke="var(--amber)"/>
+        </svg>
+      </div>
+    </div>
+    <div class="cmd">
+      <b data-k="ENTER">装備</b><b data-k="DEL">投棄</b><b data-k="TAB">並替</b>
+      <span style="margin-left:auto">空き 6 枡　/　耐圧殻 内圧 1.02 atm</span>
+    </div>
+  </div>
+  <div class="vig"></div>
+</div>
+</div>
+
+<!-- ============ 画面4 ============ -->
+<h2>04 — 通信ログ</h2>
+<p class="sub">字だけの画面。カメラが寄っても持つように、行間を2.0にして、時刻と種別の桁を固定しています。</p>
+<div class="fr">
+<div class="screen">
+  <div class="motes"></div>
+  <div class="hud" style="padding:3.4% 4%;display:flex;gap:4%">
+    <div style="flex:1;min-width:0">
+      <div class="lbl" style="margin-bottom:16px">COMMS LOG — 支援船「わだつみ」</div>
+      <div class="log">
+        <div><time>02:38:41</time><s style="color:var(--line)">SEND</s>
+          <span>降下を再開する。視界は3メートル。</span></div>
+        <div><time>02:39:16</time><s style="color:var(--dim)">RECV</s>
+          <span>了解。潮止まりまであと20分だ。</span></div>
+        <div><time>02:40:02</time><s style="color:var(--dim)">RECV</s>
+          <span>投光は絞れ。電池を残しておけ。</span></div>
+        <div><time>02:41:08</time><s style="color:var(--dim)">RECV</s>
+          <span>水深1,800を通過。ここから流れが強い。</span></div>
+        <div><time>02:41:52</time><s style="color:var(--line)">SEND</s>
+          <span>了解。バラスト2番の応答が落ちている。</span></div>
+        <div><time>02:42:35</time><s class="am">WARN</s>
+          <span class="am">バラスト2 電磁弁 応答なし</span></div>
+        <div><time>02:43:20</time><s style="color:var(--dim)">RECV</s>
+          <span>切り離せるか。無理はするな。</span></div>
+        <div><time>02:43:58</time><s style="color:var(--line)">SEND</s>
+          <span>手動で抜く。10分もらう。</span></div>
+        <div><time>02:44:03</time><s class="am">WARN</s>
+          <span class="am">船体温度 上昇 ── 右舷 後部</span></div>
+        <div><time>02:44:47</time><s style="color:var(--dim)">RECV</s>
+          <span>温度が戻らないなら浮上しろ。命令だ。</span></div>
+        <div><time>02:45:31</time><s style="color:var(--line)">SEND</s>
+          <span>沈船を視認した。船首側の亀裂から入る。</span></div>
+        <div><time>02:45:59</time><s style="color:var(--dim)">RECV</s>
+          <span>おい。聞こえているのか。</span></div>
+        <div><time>02:46:12</time><s style="color:var(--dim)">RECV</s>
+          <span>……記録は残せ。何があっても。</span></div>
+        <div><time>02:46:50</time><s style="color:var(--line)">SEND</s>
+          <span>中に、机がある。まだ紙が残ってい</span></div>
+        <div><time>02:47:44</time><s class="al">ALRT</s>
+          <span class="al">通信途絶 ── 中継ブイ 応答なし</span></div>
+      </div>
+    </div>
+
+    <div style="flex:0 0 27%;padding-top:2%">
+      <div class="lbl" style="margin-bottom:12px">SIGNAL</div>
+      <svg viewBox="0 0 200 64" style="width:100%" fill="none">
+        <path d="M0 32h200" stroke="var(--hair)"/>
+        <path d="M0 32 L12 20 L20 44 L30 14 L40 48 L50 22 L60 40 L70 18 L80 46
+                 L90 26 L100 38 L110 24 L120 42 L130 30 L140 35 L150 31 L158 33
+                 L166 32 L200 32" stroke="var(--line)" stroke-width="1.2"/>
+        <path d="M158 4v56" stroke="var(--alert)" stroke-dasharray="2 4"/>
+      </svg>
+      <div style="font-size:9px;letter-spacing:.18em;color:var(--dim);margin-top:8px">
+        02:47:44 以降 無信号</div>
+
+      <div class="lbl" style="margin:26px 0 10px">CHANNELS</div>
+      <table class="tbl">
+        <tr><td>CH 12</td><td class="n al">LOST</td></tr>
+        <tr><td>CH 08</td><td class="n">待機</td></tr>
+        <tr><td>CH 03</td><td class="n">待機</td></tr>
+        <tr><td class="am">緊急</td><td class="n am">送信中</td></tr>
+      </table>
+    </div>
+
+    <div class="cmd">
+      <b data-k="F6">再送</b><b data-k="F7">周波数</b><b data-k="F8">記録出力</b>
+      <span style="margin-left:auto" class="al">CH 12 / 8.4 kHz — SIGNAL LOST — 02:47:44</span>
+    </div>
+  </div>
+  <div class="vig"></div>
+</div>
+</div>
+
+<!-- ============ アイコン ============ -->
+<h2>05 — アイコン 24点</h2>
+<p class="sub">
+  すべて 24×24 の枡、線幅1.6px、端は切り落とし、塗りなし。<b style="color:var(--text)">この4つを揃えるだけで、別々に描いても同じ組に見えます。</b>
+  素材の追加は1点あたり10〜20分です。
+</p>
+<div class="icons">
+  <div class="ico"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="var(--line)" stroke-width="1.6"><use href="#i-o2"/></svg><b>酸素</b></div>
+  <div class="ico"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="var(--line)" stroke-width="1.6"><use href="#i-hull"/></svg><b>船体</b></div>
+  <div class="ico"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="var(--line)" stroke-width="1.6"><use href="#i-batt"/></svg><b>電源</b></div>
+  <div class="ico"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="var(--line)" stroke-width="1.6"><use href="#i-lamp"/></svg><b>投光</b></div>
+  <div class="ico"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="var(--line)" stroke-width="1.6"><use href="#i-anchor"/></svg><b>投錨</b></div>
+  <div class="ico"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="var(--line)" stroke-width="1.6"><use href="#i-prop"/></svg><b>推進</b></div>
+  <div class="ico"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="var(--line)" stroke-width="1.6"><use href="#i-sonar"/></svg><b>探信</b></div>
+  <div class="ico"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="var(--line)" stroke-width="1.6"><use href="#i-radio"/></svg><b>通信</b></div>
+  <div class="ico"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="var(--line)" stroke-width="1.6"><use href="#i-wrench"/></svg><b>修理</b></div>
+  <div class="ico"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="var(--line)" stroke-width="1.6"><use href="#i-vial"/></svg><b>採取</b></div>
+  <div class="ico"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="var(--line)" stroke-width="1.6"><use href="#i-net"/></svg><b>回収網</b></div>
+  <div class="ico"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="var(--line)" stroke-width="1.6"><use href="#i-weight"/></svg><b>重錘</b></div>
+  <div class="ico"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="var(--line)" stroke-width="1.6"><use href="#i-warn"/></svg><b>警告</b></div>
+  <div class="ico"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="var(--line)" stroke-width="1.6"><use href="#i-lock"/></svg><b>施錠</b></div>
+  <div class="ico"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="var(--line)" stroke-width="1.6"><use href="#i-map"/></svg><b>海図</b></div>
+  <div class="ico"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="var(--line)" stroke-width="1.6"><use href="#i-compass"/></svg><b>方位</b></div>
+  <div class="ico"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="var(--line)" stroke-width="1.6"><use href="#i-depth"/></svg><b>深度</b></div>
+  <div class="ico"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="var(--line)" stroke-width="1.6"><use href="#i-valve"/></svg><b>弁</b></div>
+  <div class="ico"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="var(--line)" stroke-width="1.6"><use href="#i-cable"/></svg><b>索</b></div>
+  <div class="ico"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="var(--line)" stroke-width="1.6"><use href="#i-cam"/></svg><b>撮影</b></div>
+  <div class="ico"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="var(--line)" stroke-width="1.6"><use href="#i-fish"/></svg><b>生体</b></div>
+  <div class="ico"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="var(--line)" stroke-width="1.6"><use href="#i-wreck"/></svg><b>沈船</b></div>
+  <div class="ico"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="var(--line)" stroke-width="1.6"><use href="#i-crane"/></svg><b>揚収</b></div>
+  <div class="ico"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="var(--line)" stroke-width="1.6"><use href="#i-flare"/></svg><b>信号弾</b></div>
+</div>
+
+<!-- ============ トークン ============ -->
+<h2>06 — 統一感の作り方</h2>
+<p class="sub">
+  上の4画面が揃って見えるのは、感覚ではなく、この表を守っているからです。
+  <b style="color:var(--text)">お渡しいただく既存素材やAI生成素材も、この表に合わせて調整すれば同じ組に入ります。</b>
+  ご依頼のトーンが決まっているなら、最初にこの表をお作りして先にご確認いただく形が確実です。
+</p>
+<div class="tok">
+  <div class="tokcell">
+    <div class="k">COLOR — 7</div>
+    <div class="sw">
+      <i style="background:#04121a"></i><i style="background:#082430"></i>
+      <i style="background:#4e9a94"></i><i style="background:#cfe3e0"></i>
+      <i style="background:#6b8f8c"></i><i style="background:#e6a03c"></i>
+      <i style="background:#d9603f"></i>
+    </div>
+    <div class="d">7色しか使いません。赤（#d9603f）は<b>危険の表示だけ</b>に予約し、装飾には一切使いません。</div>
+  </div>
+  <div class="tokcell">
+    <div class="k">RADIUS</div>
+    <div class="v">0px</div>
+    <div class="d">角丸を全面的に禁止しました。<b>これが「装置の画面」に見せる一番効く一手</b>です。丸めた瞬間にアプリのUIに見えます。</div>
+  </div>
+  <div class="tokcell">
+    <div class="k">HAIRLINE — 3</div>
+    <div class="v">28% / 52% / 85%</div>
+    <div class="d">線は1pxだけ。<b>太さではなく透明度で3段の強弱</b>を作ります。太い線を混ぜると画面が急に安く見えます。</div>
+  </div>
+  <div class="tokcell">
+    <div class="k">GRID</div>
+    <div class="v">8px</div>
+    <div class="d">余白・間隔はすべて8の倍数。部品を別々に作っても、並べたときに縦横がそろいます。</div>
+  </div>
+  <div class="tokcell">
+    <div class="k">ICON</div>
+    <div class="v">24box / 1.6px / butt</div>
+    <div class="d">枡・線幅・端の形・塗りなしの4点を固定。<b>この4つさえ揃えば、描き手が違っても同じ組に見えます。</b></div>
+  </div>
+  <div class="tokcell">
+    <div class="k">TYPE — 2</div>
+    <div class="v">mono / sans</div>
+    <div class="d">数字と符号は等幅、日本語は角ゴシックの2種だけ。等幅は<b>桁が動かないので、映像で数値が変化しても行が揺れません。</b></div>
+  </div>
+</div>
+
+<!-- ============ 対比 ============ -->
+<h2>07 — 崩れる例と、揃えた例</h2>
+<p class="sub">
+  同じ情報を、同じ画面比で並べた対比です。左は<b style="color:var(--text)">規則を決めずに部品を集めた場合</b>によく起きる形で、
+  角丸が3種、書体が4種、彩度の高い色が5色、影あり。ご懸念の「バラバラ」はこの状態を指すと理解しています。
+</p>
+<div class="cmp">
+  <div>
+    <div class="cap bad">✕ 規則なしで組んだ場合</div>
+    <div class="fr"><div class="bad-box">
+      <div class="card b1">DEPTH 1842m</div>
+      <div class="card b2">SONAR ON</div>
+      <div class="card b3">34°21'07"N / 139°48'52"E</div>
+      <div class="card b4">O2 78%</div>
+      <div class="card b5">⚠ ALERT</div>
+    </div></div>
+  </div>
+  <div>
+    <div class="cap good">○ 06のトークンで組んだ場合</div>
+    <div class="fr"><div class="screen">
+      <div class="motes"></div>
+      <div class="hud">
+        <div class="tl">
+          <div class="lbl">DEPTH</div>
+          <div class="big" style="font-size:30px">1,842<i>m</i></div>
+        </div>
+        <div class="tr">
+          <div class="lbl">POSITION</div>
+          <div class="mid" style="font-size:13px">34°21'07"N</div>
+          <div class="mid" style="font-size:13px">139°48'52"E</div>
+        </div>
+        <div class="bl">
+          <div class="lbl">O2</div>
+          <div class="mid am">78<span style="font-size:10px">%</span></div>
+        </div>
+        <div class="br" style="text-align:right">
+          <div class="lbl">SONAR</div>
+          <div class="mid">ACTIVE</div>
+        </div>
+        <div style="position:absolute;left:50%;top:52%;transform:translate(-50%,-50%);
+             text-align:center">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--alert)"
+               stroke-width="1.6"><use href="#i-warn"/></svg>
+          <div class="al" style="font-size:11px;letter-spacing:.2em;margin-top:6px">ALERT</div>
+        </div>
+      </div>
+      <div class="vig"></div>
+    </div></div>
+  </div>
+</div>
+<div class="note">
+  <b>左右で情報量は同じです。</b>違うのは規則があるかどうかだけです。<br>
+  実制作では、お渡しいただく有料UI素材やAI生成素材を<b>右の規則に合わせて調整して組み込みます</b>。
+  素材そのものを作り直すのではなく、<b>色・線幅・角・余白の4点を寄せる</b>のが最も速く、最も揃います。
+</div>
+
+<!-- ============ 別トーン ============ -->
+<h2>08 — 同じ構造のまま、トーンだけ振り替える</h2>
+<p class="sub">
+  作品の世界観に合わせて色を振り直した例です。<b style="color:var(--text)">部品の位置と大きさは1pxも動かしていません。</b>
+  06の表の色の行だけを差し替えています。方向性が固まる前でも、構造から先に進められます。
+</p>
+<div class="retone">
+  <div>
+    <div class="screen">
+      <div class="hud" style="padding:5%">
+        <div class="lbl">DEPTH</div>
+        <div class="big" style="font-size:22px">1,842<i>m</i></div>
+        <div class="bar am" style="margin-top:14px"><span style="width:66%"></span></div>
+        <div class="bar" style="margin-top:6px"><span style="width:41%"></span></div>
+        <div style="position:absolute;right:6%;bottom:8%">
+          <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="var(--line)"
+               stroke-width="1.6"><use href="#i-sonar"/></svg>
+        </div>
+      </div>
+      <div class="vig"></div>
+    </div>
+    <div class="cap">A — 深海（既定）</div>
+  </div>
+  <div>
+    <div class="screen t-amber">
+      <div class="hud" style="padding:5%">
+        <div class="lbl">DEPTH</div>
+        <div class="big" style="font-size:22px">1,842<i>m</i></div>
+        <div class="bar am" style="margin-top:14px"><span style="width:66%"></span></div>
+        <div class="bar" style="margin-top:6px"><span style="width:41%"></span></div>
+        <div style="position:absolute;right:6%;bottom:8%">
+          <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="var(--line)"
+               stroke-width="1.6"><use href="#i-sonar"/></svg>
+        </div>
+      </div>
+      <div class="vig"></div>
+    </div>
+    <div class="cap">B — 旧式端末（琥珀単色）</div>
+  </div>
+  <div>
+    <div class="screen t-mono">
+      <div class="hud" style="padding:5%">
+        <div class="lbl">DEPTH</div>
+        <div class="big" style="font-size:22px">1,842<i>m</i></div>
+        <div class="bar am" style="margin-top:14px"><span style="width:66%"></span></div>
+        <div class="bar" style="margin-top:6px"><span style="width:41%"></span></div>
+        <div style="position:absolute;right:6%;bottom:8%">
+          <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="var(--line)"
+               stroke-width="1.6"><use href="#i-sonar"/></svg>
+        </div>
+      </div>
+      <div class="vig"></div>
+    </div>
+    <div class="cap">C — 記録映像（無彩色）</div>
+  </div>
+</div>
+
+<footer>
+  <b style="color:var(--text)">この見本について</b><br>
+  ・題材は架空です。実在の船舶・海域・企業とは関係ありません<br>
+  ・画像ファイルを1枚も使っていません。背景・計器・アイコン・粒子はすべてSVGとCSSで描いています<br>
+  ・生成AIは使用していません。ご依頼で許可されているAI生成素材との組み合わせは、この規則の上に重ねる形で対応します<br>
+  ・ベクターのため、書き出し直せば4K・縦画面・部分拡大のいずれでも劣化しません<br>
+  ・外部の読み込みが一切ないので、この1ファイルだけで表示できます
+</footer>
+
+</div>
+</body>
+</html>
