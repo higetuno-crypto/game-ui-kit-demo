@@ -17,7 +17,13 @@
   --text:#cfe3e0;       /* 読ませる字 */
   --dim:#6b8f8c;        /* 補助の字 */
   --amber:#e6a03c;      /* 計器・現在値・強調 */
-  --alert:#d9603f;      /* 危険のみ。他に使わない */
+  --alert:#d9603f;      /* 画面の中では危険の表示だけに使う */
+
+  /* 上の7色から派生させた4色。ここ以外に色を足さない */
+  --lift:#0d3242;       /* 背景グラデーションの明部 */
+  --mid:#071d27;        /* 背景グラデーションの中間 */
+  --mote:var(--mote);       /* 漂う粒子 */
+  --sel:#0d3442;        /* 選択中の枡 */
 
   /* 線（3段だけ） */
   --hair:rgba(78,154,148,.28);
@@ -80,9 +86,13 @@ h2 + .sub{color:var(--dim);font-size:13px;margin-bottom:24px;max-width:64ch}
 .screen{
   position:relative;width:100%;aspect-ratio:16/9;
   background:
-    radial-gradient(120% 90% at 50% 8%, #0d3242 0%, #071d27 46%, var(--abyss) 100%);
+    radial-gradient(120% 90% at 50% 8%, var(--lift) 0%, var(--mid) 46%, var(--abyss) 100%);
   border:1px solid var(--hair2);border-radius:var(--r);
-  overflow:hidden;font-family:var(--mono);
+  overflow:hidden;
+  /* ★英数字は等幅、日本語は角ゴシック。★
+     等幅フォントは日本語グリフを持たないので、指定しないと環境ごとに違う書体へ落ちる */
+  font-family:ui-monospace,"SFMono-Regular",Consolas,"DejaVu Sans Mono",
+              "BIZ UDPGothic","Yu Gothic UI","Hiragino Sans","Meiryo",monospace;
   color:var(--text);
 }
 /* 走査線と粒子。画像を1枚も使わずに「機材ごしの映像」を作る */
@@ -96,13 +106,13 @@ h2 + .sub{color:var(--dim);font-size:13px;margin-bottom:24px;max-width:64ch}
   background:radial-gradient(78% 78% at 50% 50%, rgba(0,0,0,0) 40%, rgba(0,0,0,.62) 100%)}
 .motes{position:absolute;inset:0;pointer-events:none;opacity:.5;
   background:
-   radial-gradient(1.5px 1.5px at 14% 22%, #9fd6cf 50%, transparent 51%),
-   radial-gradient(1px 1px at 31% 68%, #9fd6cf 50%, transparent 51%),
-   radial-gradient(1.5px 1.5px at 57% 34%, #9fd6cf 50%, transparent 51%),
-   radial-gradient(1px 1px at 73% 79%, #9fd6cf 50%, transparent 51%),
-   radial-gradient(1.5px 1.5px at 88% 46%, #9fd6cf 50%, transparent 51%),
-   radial-gradient(1px 1px at 44% 88%, #9fd6cf 50%, transparent 51%),
-   radial-gradient(1px 1px at 66% 12%, #9fd6cf 50%, transparent 51%);
+   radial-gradient(1.5px 1.5px at 14% 22%, var(--mote) 50%, transparent 51%),
+   radial-gradient(1px 1px at 31% 68%, var(--mote) 50%, transparent 51%),
+   radial-gradient(1.5px 1.5px at 57% 34%, var(--mote) 50%, transparent 51%),
+   radial-gradient(1px 1px at 73% 79%, var(--mote) 50%, transparent 51%),
+   radial-gradient(1.5px 1.5px at 88% 46%, var(--mote) 50%, transparent 51%),
+   radial-gradient(1px 1px at 44% 88%, var(--mote) 50%, transparent 51%),
+   radial-gradient(1px 1px at 66% 12%, var(--mote) 50%, transparent 51%);
 }
 
 /* ---------- HUDの部品 ---------- */
@@ -174,7 +184,7 @@ h2 + .sub{color:var(--dim);font-size:13px;margin-bottom:24px;max-width:64ch}
   background:var(--hair);border:1px solid var(--hair2)}
 .slot{aspect-ratio:1;background:var(--deep);display:grid;place-items:center;
   position:relative}
-.slot.on{background:#0d3442;box-shadow:inset 0 0 0 1px var(--amber)}
+.slot.on{background:var(--sel);box-shadow:inset 0 0 0 1px var(--amber)}
 .slot.empty{background:rgba(8,36,48,.45)}
 .slot u{position:absolute;right:3px;bottom:1px;font-size:8px;color:var(--dim);
   text-decoration:none;font-variant-numeric:tabular-nums}
@@ -238,9 +248,14 @@ h2 + .sub{color:var(--dim);font-size:13px;margin-bottom:24px;max-width:64ch}
 /* ---------- 別トーン ---------- */
 .retone{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
 .retone .screen{aspect-ratio:16/9}
+/* ★色の行を差し替えるとき、ヘアラインも一緒に差し替える。★
+   --line だけ変えて --hair を固定にしていたため、
+   琥珀・無彩色の案に青緑の罫線が残っていた（実レンダリングで確認） */
 .t-amber{--line:#c08a3a;--text:#f0dfc4;--dim:#9a8261;--amber:#ffc46b;
+  --hair:rgba(192,138,58,.28);--hair2:rgba(192,138,58,.52);--hair3:rgba(192,138,58,.85);
   background:radial-gradient(120% 90% at 50% 8%, #3a2408 0%, #241505 46%, #120a02 100%)}
 .t-mono{--line:#8c8c8c;--text:#eaeaea;--dim:#8f8f8f;--amber:#ffffff;
+  --hair:rgba(140,140,140,.28);--hair2:rgba(140,140,140,.52);--hair3:rgba(140,140,140,.85);
   background:radial-gradient(120% 90% at 50% 8%, #2a2a2a 0%, #161616 46%, #0a0a0a 100%)}
 .retone .cap{font-family:var(--mono);font-size:10px;letter-spacing:.14em;
   color:var(--dim);margin-top:10px}
@@ -308,7 +323,7 @@ footer{margin-top:96px;padding-top:32px;border-top:1px solid var(--hair);
   <p class="lede">
     ご依頼文にあった「<b>既存素材をそのままバラバラにつなげると統一感のない画面になってしまう</b>」
     という点に、実物でお答えするために作りました。<br><br>
-    この見本は<b>生成AIを一切使わず、すべてコードで描いています</b>（画像ファイルを1枚も読み込んでいません）。
+    この見本には<b>画像生成AIを使っていません</b>。画像ファイルは1枚もなく、
     アイコンも背景も計器もSVGとCSSです。ベクターなので、<b>4Kでも縦画面でも、書き出し直せば劣化しません</b>。
     AI生成素材や有料UI素材と混ぜる工程は、この上に重ねる形でご用意できます。
   </p>
@@ -608,7 +623,7 @@ footer{margin-top:96px;padding-top:32px;border-top:1px solid var(--hair);
         <path d="M0 32h200" stroke="var(--hair)"/>
         <path d="M0 32 L12 20 L20 44 L30 14 L40 48 L50 22 L60 40 L70 18 L80 46
                  L90 26 L100 38 L110 24 L120 42 L130 30 L140 35 L150 31 L158 33
-                 L166 32 L200 32" stroke="var(--line)" stroke-width="1.2"/>
+                 L166 32 L200 32" stroke="var(--line)" stroke-width="1"/>
         <path d="M158 4v56" stroke="var(--alert)" stroke-dasharray="2 4"/>
       </svg>
       <div style="font-size:9px;letter-spacing:.18em;color:var(--dim);margin-top:8px">
@@ -674,14 +689,14 @@ footer{margin-top:96px;padding-top:32px;border-top:1px solid var(--hair);
 </p>
 <div class="tok">
   <div class="tokcell">
-    <div class="k">COLOR — 7</div>
+    <div class="k">COLOR — 7 + 派生4</div>
     <div class="sw">
       <i style="background:#04121a"></i><i style="background:#082430"></i>
       <i style="background:#4e9a94"></i><i style="background:#cfe3e0"></i>
       <i style="background:#6b8f8c"></i><i style="background:#e6a03c"></i>
       <i style="background:#d9603f"></i>
     </div>
-    <div class="d">7色しか使いません。赤（#d9603f）は<b>危険の表示だけ</b>に予約し、装飾には一切使いません。</div>
+    <div class="d">基本は7色。ほかに背景グラデーションの明部・中間、粒子、選択中の枡の<b>4色を、この7色から派生させて使っています</b>（計11色）。<b>画面の中では、赤（#d9603f）を危険の表示だけに予約</b>しています。<br><span style="font-size:11px">※このページの解説にある「✕ 規則なしで組んだ場合」の赤は、画面の外の印です</span></div>
   </div>
   <div class="tokcell">
     <div class="k">RADIUS</div>
@@ -691,24 +706,26 @@ footer{margin-top:96px;padding-top:32px;border-top:1px solid var(--hair);
   <div class="tokcell">
     <div class="k">HAIRLINE — 3</div>
     <div class="v">28% / 52% / 85%</div>
-    <div class="d">線は1pxだけ。<b>太さではなく透明度で3段の強弱</b>を作ります。太い線を混ぜると画面が急に安く見えます。</div>
+    <div class="d">罫線は1pxだけ。<b>太さではなく透明度で3段の強弱</b>を作ります。太い線を混ぜると画面が急に安く見えます。<br><span style="font-size:11px">※アイコンとSVGの図形は1.6px（別規則）。ゲージの塗りや粒子の層に使っている不透明度は、罫線の3段とは別のものです</span></div>
   </div>
   <div class="tokcell">
     <div class="k">LAYOUT</div>
     <div class="v">8の倍数 ／ 画面内は%</div>
-    <div class="d">ページの余白は8の倍数（8/16/24/32/40/64/72/96）。
-      <b>画面の中の部品は16:9に対する%で置いています</b>ので、
-      書き出す解像度が変わっても位置関係が崩れません。</div>
+    <div class="d"><b>画面の中の部品は、置く位置を16:9に対する%で指定しています</b>ので、
+      書き出す解像度が変わっても配置の比率が崩れません。<br>
+      <span style="font-size:11px">※部品そのものの寸法（ゲージ12×170px・定規52px・レティクル132px）は固定pxです。
+      書き出し時に倍率をかける前提で、比率は保たれます。<br>
+      ページ側の余白は8の倍数を基本にしていますが、行間の微調整に例外があります</span></div>
   </div>
   <div class="tokcell">
     <div class="k">ICON</div>
-    <div class="v">24box / 1.6px / butt</div>
-    <div class="d">枡・線幅・端の形・塗りなしの4点を固定。<b>この4つさえ揃えば、描き手が違っても同じ組に見えます。</b></div>
+    <div class="v">24×24座標系 / 1.6 / butt</div>
+    <div class="d">座標系・線幅・端の形・塗りなしの4点を固定。<b>この4つさえ揃えば、描き手が違っても同じ組に見えます。</b><br><span style="font-size:11px">※24×24は描画の座標系です。表示サイズは用途で変えています（一覧30px・装備画面26px）</span></div>
   </div>
   <div class="tokcell">
     <div class="k">TYPE — 2</div>
     <div class="v">mono / sans</div>
-    <div class="d">数字と符号は等幅、日本語は角ゴシックの2種だけ。等幅は<b>桁が動かないので、映像で数値が変化しても行が揺れません。</b></div>
+    <div class="d">数字と符号は等幅、日本語は角ゴシックの2種だけ。等幅は<b>桁が動かないので、映像で数値が変化しても行が揺れません。</b><br><span style="font-size:11px">※等幅フォントは日本語のグリフを持たないため、画面のfont-familyに角ゴシックを続けて指定し、環境ごとに書体が変わらないようにしています</span></div>
   </div>
 </div>
 
@@ -830,8 +847,12 @@ footer{margin-top:96px;padding-top:32px;border-top:1px solid var(--hair);
   <b style="color:var(--text)">この見本について</b><br>
   ・題材は架空です。実在の船舶・海域・企業とは関係ありません<br>
   ・画像ファイルを1枚も使っていません。背景・計器・アイコン・粒子はすべてSVGとCSSで描いています<br>
-  ・生成AIは使用していません。ご依頼で許可されているAI生成素材との組み合わせは、この規則の上に重ねる形で対応します<br>
-  ・ベクターのため、書き出し直せば4K・縦画面・部分拡大のいずれでも劣化しません<br>
+  ・<b>画像生成AI（Midjourney・Stable Diffusion等）は使用していません。</b>画像ファイルが0枚なのはそのためです<br>
+  ・<b>ただし、この見本のコードはAI（Claude）を併用して書いています。</b>「指示を出して絵を出す」のではなく、<br>
+  　配色・線幅・余白の規則を決め、それをコードに落として調整する工程にAIを使っています<br>
+  ・ご依頼で許可されているAI生成素材との組み合わせは、この規則の上に重ねる形で対応します<br>
+  ・ベクターのため、書き出す解像度を変えても劣化しません（4K・部分拡大とも）<br>
+  ・<b>縦画面は再レイアウトが必要です。</b>現在の見本は16:9固定で、縦型の配置規則は入れていません<br>
   ・外部の読み込みが一切ないので、この1ファイルだけで表示できます
 </footer>
 
