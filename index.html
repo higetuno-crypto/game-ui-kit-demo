@@ -694,9 +694,11 @@ footer{margin-top:96px;padding-top:32px;border-top:1px solid var(--hair);
     <div class="d">線は1pxだけ。<b>太さではなく透明度で3段の強弱</b>を作ります。太い線を混ぜると画面が急に安く見えます。</div>
   </div>
   <div class="tokcell">
-    <div class="k">GRID</div>
-    <div class="v">8px</div>
-    <div class="d">余白・間隔はすべて8の倍数。部品を別々に作っても、並べたときに縦横がそろいます。</div>
+    <div class="k">LAYOUT</div>
+    <div class="v">8の倍数 ／ 画面内は%</div>
+    <div class="d">ページの余白は8の倍数（8/16/24/32/40/64/72/96）。
+      <b>画面の中の部品は16:9に対する%で置いています</b>ので、
+      書き出す解像度が変わっても位置関係が崩れません。</div>
   </div>
   <div class="tokcell">
     <div class="k">ICON</div>
@@ -713,8 +715,9 @@ footer{margin-top:96px;padding-top:32px;border-top:1px solid var(--hair);
 <!-- ============ 対比 ============ -->
 <h2>07 — 崩れる例と、揃えた例</h2>
 <p class="sub">
-  同じ情報を、同じ画面比で並べた対比です。左は<b style="color:var(--text)">規則を決めずに部品を集めた場合</b>によく起きる形で、
-  角丸が3種、書体が4種、彩度の高い色が5色、影あり。ご懸念の「バラバラ」はこの状態を指すと理解しています。
+  同じ情報を、同じ画面比で並べた対比です。左は<b style="color:var(--text)">規則を決めずに部品を集めた場合</b>によく起きる形です。
+  数えると<b style="color:var(--text)">角丸6種（2/4/12/14/18/24px）、書体3種、配色8色（うち差し色4色）、影あり</b>。
+  ご懸念の「バラバラ」はこの状態を指すと理解しています。
 </p>
 <div class="cmp">
   <div>
